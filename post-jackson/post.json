@@ -1,0 +1,17 @@
+{
+	"id": "JavaFan1638705389643",
+	"title": "Java EE",
+	"content": "Java is the best for backend",
+	"author": "JavaFan",
+	"dateCreated": "2021-12-05T13:56:21",
+	"tags": ["Java", "backend"],
+	"likes": 1,
+	"comments": [
+		{
+			"user": "Stranger",
+			"message": "Awesome!",
+			"dateCreated": "2021-12-05T13:57:21",
+			"likes": 0
+		}
+	]
+}
