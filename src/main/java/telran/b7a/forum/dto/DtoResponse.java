@@ -1,6 +1,7 @@
 package telran.b7a.forum.dto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -28,5 +29,5 @@ public class DtoResponse {
 	Set<String> tags;
 	Integer likes;
 	@Singular
-	List<Comments> comments;
+	List<Comments> comments = new ArrayList<Comments>();
 }

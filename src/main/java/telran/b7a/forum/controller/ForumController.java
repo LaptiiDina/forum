@@ -1,17 +1,21 @@
 package telran.b7a.forum.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import telran.b7a.forum.dto.AddCommentToPostDto;
+import telran.b7a.forum.dto.DtoPeriod;
 import telran.b7a.forum.dto.DtoResponse;
 import telran.b7a.forum.dto.RequsteDto;
 import telran.b7a.forum.service.ForumService;
@@ -21,10 +25,10 @@ public class ForumController {
 	@Autowired
 	ForumService forumService;
 
-	@PostMapping("/forum/post/JavaFan")
-	public DtoResponse addpost(@RequestBody RequsteDto requsteDto) {
+	@PostMapping("/forum/post/{author}")
+	public DtoResponse addpost(@RequestBody RequsteDto requsteDto, @PathVariable String author) {
 
-		return forumService.addpost(requsteDto);
+		return forumService.addpost(requsteDto,author);
 	}
 
 	@GetMapping("/forum/post/{id}")
@@ -39,7 +43,7 @@ public class ForumController {
 		return forumService.deletePost(id);
 	}
 
-	@GetMapping("/forum/posts/{author}/JavaFan")
+	@GetMapping("/forum/posts/author/{author}")
 	public List<DtoResponse> findPostsbyAuthor(@PathVariable String author) {
 
 		return forumService.findPostsbyAuthor(author);
@@ -53,6 +57,8 @@ public class ForumController {
 	}
 
 	@PutMapping("/forum/post/{id}/like")
+	@ResponseStatus(value = HttpStatus.NO_CONTENT)
+
 	public void addLikeToPost(@PathVariable String id) {
 		forumService.addLikeToPost(id);
 	}
@@ -62,5 +68,15 @@ public class ForumController {
 			@RequestBody AddCommentToPostDto addCommentToPostDto) {
 
 		return forumService.AddCommentToPost(id, author, addCommentToPostDto);
+	}
+	@PostMapping("/forum/posts/tags")
+	public List<DtoResponse> findPostsByTags(@RequestBody String[] tags) {
+		
+		return forumService.findPostsByTags(tags);
+	}
+	@PostMapping("/forum/posts/period")
+	public List<DtoResponse> findPostsByPeriod(@RequestBody DtoPeriod dtoPeriod) {
+		
+		return forumService.findPostsByPeriod(dtoPeriod);
 	}
 }
