@@ -1,4 +1,4 @@
-package telran.forum.model;
+package telran.b7a.forum.model;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

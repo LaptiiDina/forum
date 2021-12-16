@@ -25,9 +25,10 @@ import telran.b7a.forum.dto.DtoResponse;
 import telran.b7a.forum.dto.RequsteDto;
 
 import telran.b7a.forum.execption.ForumExeception;
+import telran.b7a.forum.model.Comments;
+import telran.b7a.forum.model.Post;
 import telran.b7a.forum.repositoriy.ForumRepositoriy;
-import telran.forum.model.Comments;
-import telran.forum.model.Post;
+
 
 @Service
 public class ForumServiceImp implements ForumService {
@@ -37,7 +38,7 @@ public class ForumServiceImp implements ForumService {
 	ModelMapper modelMapper;
 
 	@Override
-	public DtoResponse addpost(RequsteDto requsteDto,String author) {
+	public DtoResponse addpost(RequsteDto requsteDto, String author) {
 
 		Post post = modelMapper.map(requsteDto, Post.class);
 		post.setAuthor(author);
@@ -66,44 +67,31 @@ public class ForumServiceImp implements ForumService {
 
 	@Override
 	public List<DtoResponse> findPostsbyAuthor(String author) {
-		 
-		
-		return forumRepositoriy.findAll()
-				.stream()
-				.filter(p -> p.getAuthor().equals(author))
-				.map(p-> modelMapper.map(p,DtoResponse.class))
-				.collect(Collectors.toList());
+
+		return forumRepositoriy.findAll().stream().filter(p -> p.getAuthor().equals(author))
+				.map(p -> modelMapper.map(p, DtoResponse.class)).collect(Collectors.toList());
 	}
 
 	@Override
 	public DtoResponse updatePost(String id, RequsteDto requsteDto) {
-	
-	
-	Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
-	String title = requsteDto.getTitle();
-	if(title == null) {
-		title = post.getTitle();
-	}
-	
-	String content = requsteDto.getContent();
-	if(content==null) {
-		content = post.getContent();
-	}
-	
-	Set<String>tags = post.getTags();
-	tags.addAll(requsteDto.getTags());
-			
-			
-			
-		Post nPost = new Post(id,title,
-				content,
-				post.getAuthor(),
-				LocalDateTime.now(),
-				tags,post.getLikes(),post.getComments());
-		
-		
-		
-		
+
+		Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
+		String title = requsteDto.getTitle();
+		if (title == null) {
+			title = post.getTitle();
+		}
+
+		String content = requsteDto.getContent();
+		if (content == null) {
+			content = post.getContent();
+		}
+
+		Set<String> tags = post.getTags();
+		tags.addAll(requsteDto.getTags());
+
+		Post nPost = new Post(id, title, content, post.getAuthor(), LocalDateTime.now(), tags, post.getLikes(),
+				post.getComments());
+
 		DtoResponse result = modelMapper.map(nPost, DtoResponse.class);
 		forumRepositoriy.save(nPost);
 		return result;
@@ -113,18 +101,15 @@ public class ForumServiceImp implements ForumService {
 	public void addLikeToPost(String id) {
 		Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
 		post.addLike();
-	
+
 		forumRepositoriy.save(post);
-		
 
 	}
 
 	@Override
 	public DtoResponse AddCommentToPost(String id, String author, AddCommentToPostDto addCommentToPostDto) {
 		Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
-		Comments comment = new Comments(post.getAuthor()
-				,addCommentToPostDto.getMessage()
-				,LocalDateTime.now(),0);
+		Comments comment = new Comments(post.getAuthor(), addCommentToPostDto.getMessage(), LocalDateTime.now(), 0);
 		post.addComment(comment);
 		forumRepositoriy.save(post);
 		DtoResponse result = modelMapper.map(post, DtoResponse.class);
@@ -133,32 +118,26 @@ public class ForumServiceImp implements ForumService {
 
 	@Override
 	public List<DtoResponse> findPostsByTags(String[] tags) {
-		List<Post>allPosts = forumRepositoriy.findAll();
+		List<Post> allPosts = forumRepositoriy.findAll();
+
+		List<DtoResponse> result = allPosts.stream()
+				.filter(p -> Arrays.stream(tags).anyMatch(t->p.getTags().contains(t)))
+				.map(p -> modelMapper.map(p, DtoResponse.class)).collect(Collectors.toList());
 	
-		List<DtoResponse>result = new ArrayList<DtoResponse>();
-		for (String tag : tags) {
-			result=allPosts.stream()
-			.filter(p->p.getTags().contains(tag))
-			.map(p-> modelMapper.map(p,DtoResponse.class))
-			.collect(Collectors.toList());
-		
-		}
 		return result;
 	}
 
 	@Override
 	public List<DtoResponse> findPostsByPeriod(DtoPeriod dtoPeriod) {
-		
-		LocalDateTime first = LocalDateTime.of(dtoPeriod.getDateFrom(), LocalTime.of(0, 0));          
-		LocalDateTime second = LocalDateTime.of(dtoPeriod.getDateTo(), LocalTime.of(23, 59));  
-		List<Post>allPosts = forumRepositoriy.findAll();
-		
-		return allPosts.stream()
-				
-				.filter(p->p.getDateCreated().isAfter(first)&& p.getDateCreated().isBefore(second))
-				.map(p-> modelMapper.map(p,DtoResponse.class))
-				.collect(Collectors.toList());
-	}
 
+		LocalDateTime first = LocalDateTime.of(dtoPeriod.getDateFrom(), LocalTime.of(0, 0));
+		LocalDateTime second = LocalDateTime.of(dtoPeriod.getDateTo(), LocalTime.of(23, 59));
+		List<Post> allPosts = forumRepositoriy.findAll();
+
+		return allPosts.stream()
+
+				.filter(p -> p.getDateCreated().isAfter(first) && p.getDateCreated().isBefore(second))
+				.map(p -> modelMapper.map(p, DtoResponse.class)).collect(Collectors.toList());
+	}
 
 }
