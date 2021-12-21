@@ -1,5 +1,6 @@
 package telran.b7a.accaunt.service;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,18 +16,29 @@ import telran.b7a.forum.execption.ForumExeception;
 import telran.b7a.forum.model.Post;
 @Service
 public class AccauntServiceImp implements AccauntService {
-@Autowired
+
 	AccauntRepositoriy acc;
-	@Autowired
+	
 	ModelMapper modelMapper;
+	
+	@Autowired
+	public AccauntServiceImp(AccauntRepositoriy acc, ModelMapper modelMapper) {
+		this.acc = acc;
+		this.modelMapper = modelMapper;
+	}
+	
 	@Override
 	public ResponseDto registerUser(RegisterDto registerDto) {
 	User user = modelMapper.map(registerDto, User.class);
 	user.addRoles("User");
+	String password = BCrypt.hashpw(registerDto.getPassword(), BCrypt.gensalt());
+	user.setPassword(password);
 	acc.save(user);
 	
 		return modelMapper.map(user, ResponseDto.class);
 	}
+
+	
 
 	@Override
 	public ResponseDto loginUser(String login) {
@@ -71,7 +83,7 @@ public class AccauntServiceImp implements AccauntService {
 	@Override
 	public void changePassword(LoginDto loginDto) {
 		User user = acc.findById(loginDto.getLogin()).orElseThrow(() -> new ForumExeception(loginDto.getLogin()));
-		user.setPassword(loginDto.getPassword());
+		user.setPassword(BCrypt.hashpw(loginDto.getPassword(), BCrypt.gensalt()));
 		acc.save(user);
 		
 	}

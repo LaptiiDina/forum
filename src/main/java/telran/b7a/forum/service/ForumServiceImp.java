@@ -12,6 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.amqp.RabbitProperties.Stream;
 import org.springframework.stereotype.Service;
@@ -28,10 +30,13 @@ import telran.b7a.forum.execption.ForumExeception;
 import telran.b7a.forum.model.Comments;
 import telran.b7a.forum.model.Post;
 import telran.b7a.forum.repositoriy.ForumRepositoriy;
+import telran.b7a.forum.service.logging.PostLogger;
 
 
 @Service
 public class ForumServiceImp implements ForumService {
+	
+	
 	@Autowired
 	ForumRepositoriy forumRepositoriy;
 	@Autowired
@@ -73,6 +78,7 @@ public class ForumServiceImp implements ForumService {
 	}
 
 	@Override
+	@PostLogger
 	public DtoResponse updatePost(String id, RequsteDto requsteDto) {
 
 		Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
@@ -98,6 +104,7 @@ public class ForumServiceImp implements ForumService {
 	}
 
 	@Override
+	@PostLogger
 	public void addLikeToPost(String id) {
 		Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
 		post.addLike();
@@ -109,7 +116,7 @@ public class ForumServiceImp implements ForumService {
 	@Override
 	public DtoResponse AddCommentToPost(String id, String author, AddCommentToPostDto addCommentToPostDto) {
 		Post post = forumRepositoriy.findById(id).orElseThrow(() -> new ForumExeception(id));
-		Comments comment = new Comments(post.getAuthor(), addCommentToPostDto.getMessage(), LocalDateTime.now(), 0);
+		Comments comment = new Comments(author, addCommentToPostDto.getMessage(), LocalDateTime.now(), 0);
 		post.addComment(comment);
 		forumRepositoriy.save(post);
 		DtoResponse result = modelMapper.map(post, DtoResponse.class);
