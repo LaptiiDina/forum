@@ -21,14 +21,14 @@ import telran.b7a.forum.repositoriy.ForumRepositoriy;
 import telran.b7a.security.SecurityContex;
 import telran.b7a.security.UserProfile;
 @Service
-@Order(19)
-public class UpdateAndDeletePostFilter implements Filter {
+@Order(18)
+public class DeletePostFilter implements Filter {
 
 	
 	SecurityContex contex;
 	ForumRepositoriy forum;
 	@Autowired
-	public UpdateAndDeletePostFilter(SecurityContex contex,ForumRepositoriy forum) {
+	public DeletePostFilter(SecurityContex contex,ForumRepositoriy forum) {
 		
 		this.contex = contex;
 		this.forum = forum;
@@ -54,7 +54,7 @@ public class UpdateAndDeletePostFilter implements Filter {
 	}
 	private boolean checkEndPoints(String servletPath, String method) {
 		
-		return ("PUT".equalsIgnoreCase(method) && servletPath.matches("[/]forum[/]post[/]\\w+[/]?"))||("Delete".equalsIgnoreCase(method) && servletPath.matches("[/]forum[/]post[/]\\w+[/]?"));
+		return "Delete".equalsIgnoreCase(method) && servletPath.matches("[/]forum[/]post[/]\\w+[/]?");
 	}
 
 }
